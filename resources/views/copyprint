@@ -1,0 +1,145 @@
+@extends('layouts.master')
+<style>
+.watermark {
+    opacity: 0.5;
+    color: BLACK;
+    position: absolute;
+    bottom: 0;
+    right: 0;
+}
+</style>
+@section('content')
+
+<!--main content start-->
+      <img class="visible-print" style="padding-left: 30px !important;" width="700" src="{{asset('/public/img/header-mnei.png')}}" alt="E-Lab">
+
+                <div class="col-lg-12">
+                    <br>
+ <h4 class="text-center"><strong>Patient ID: {{$patient->patient->id}}  &nbsp;&nbsp;&nbsp; 
+            Full Name: {{$patient->patient->fname}}  &nbsp;&nbsp;&nbsp;
+            Gender: {{$patient->patient->gender}}    &nbsp;&nbsp;&nbsp; 
+
+            @if($patient->patient->years == 0 || $patient->patient->years == "")
+            &nbsp;&nbsp;&nbsp;
+            @else
+            Years: {{$patient->patient->years}}     &nbsp;&nbsp;&nbsp;
+            @endif
+            
+            @if($patient->patient->months == 0 || $patient->patient->months == "")
+            &nbsp;&nbsp;&nbsp;
+            @else
+            Month: {{$patient->patient->months}}
+            @endif
+            
+</strong></h4>
+<h4 class="text-center" style="padding-top: 10px !important;"><strong>
+            Date: {{$patient->patient->created_at->format('d/m/Y')}}  
+            &nbsp;&nbsp;&nbsp;
+            <span style="font-style: italic; color: green !important;">Referral Doctor: {{$patient->refferal->name}}</spna></strong></h4>
+<br>
+
+                <div class="form-group has-primary "  style="min-height:500px;">
+                
+<div class="for-watermark-div visible-print" >
+ <img src="{{asset('/public/img/medicell.png')}}" >
+ </div>
+                        <div class="col-lg-12" >
+                            @foreach ($maintests as $maintest)
+                                @continue(!in_array($maintest->id, $patient->maintests()))
+                                <div class="row">
+                                <div class="form-group has-primary col-lg-2 text-center" >
+                            <label class="control-label text-center">
+                                <strong class="h2 text-center" style="font-style: italic; color: green !important;">{{$maintest->name}}</strong><label>
+                                </div> 
+                                             <table class="table table-responsive table-bordered h5">
+                                                  <thead>
+                                                     <tr>
+                                                     <th class="col-print-3">Test Name</th>
+                                                     <th class="col-print-1">Result</th>
+                                                     <th class="col-print-1 hidden">Level</th>
+                                                     <th class="col-print-4">Normal Range</th>
+                                                     <th class="col-print-4">Description</th>
+
+                                                     </tr>
+                                                 </thead>
+
+                               @foreach ($patient->subtests->sortby('description') as $subtest)
+                                    @continue($subtest->maintest->id!=$maintest->id)
+                                             
+                                                 <tbody>
+
+                                                    @if($subtest->name=='Urine' || $subtest->name=='Stool' || $subtest->name=='SFA')
+                                                        <tr>
+                                                            </tr>
+                                                    @else
+                                                    
+                                                    <tr>
+                                                        
+                                                        
+                                                    </tr>
+                                                    <tr>
+     
+                                                        <td> {{$subtest->name}}</td>
+                                                        <td>{{$subtest->pivot->result}}</td>
+                                                        
+                                                        @if($subtest->pivot->negative=='L' || $subtest->pivot->negative=='H')
+                                                          <td style="color: red !important" class="hidden">
+                                                              {{$subtest->pivot->negative}}</td>
+                                                              
+                                                        @elseif($subtest->pivot->negative=='-')
+                                                            <td class="hidden">-</td>
+                                                    
+                                                        @else
+                                                            
+                                                            @if($subtest->pivot->negative=='Normal')
+                                                            <td class="hidden">N</td>
+                                                            @endif
+                                                        
+                                                        
+                                                        @endif
+                                                 
+                                                        <td>{{$subtest->normal_range}}</td> 
+                                                        
+                    @if($subtest->description=='Macroscopic-Examination')
+                            <td class="h6" style="background-color: #F5DEB3 !important;">{{$subtest->description}}</td>
+                    @elseif($subtest->description=='Abnormality')
+                            <td style="background-color: #FFFACD !important;">{{$subtest->description}}</td>
+                    @elseif($subtest->description=='Microscopic-Examination')
+                             <td style="background-color: #E0FFFF !important;">{{$subtest->description}}</td>
+                    @else
+                            <td>{{$subtest->description}}</td>
+                    @endif                 
+                                                       
+                                                     </tr>
+                                                     @endif
+                                                 </tbody>
+                                                 
+                                @endforeach
+                                             </table>
+
+                                </div>
+                                @endforeach
+
+                </div>
+            </div>
+          
+        </div>
+        <br>
+        <br>
+
+            <h4 style="text-align: right !important; margin-right: 100px !important;"><strong>
+            Signature</strong></h4>
+
+      <br>
+        
+      <img   class="visible-print" width="1185" src="{{asset('/public/img/footer.png')}}" alt=" E-Lab">
+
+            @endsection
+@section('afterFooter')
+<script type="text/javascript">
+$(document).ready(function() {
+   window.print();
+
+});
+</script>
+@endsection

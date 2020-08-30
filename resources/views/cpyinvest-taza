@@ -1,0 +1,166 @@
+@extends('layouts.master')
+<style>
+.watermark {
+    opacity: 0.5;
+    color: BLACK;
+    position: absolute;
+    bottom: 0;
+    right: 0;
+}
+.darkblue{
+    color: #191970 !important;
+    }
+
+.header, .header-space,
+.footer, .footer-space {
+  height: 100px;
+  margin:2px;
+}
+.header {
+  position: fixed;
+  top: 0;
+}
+.footer {
+  position: fixed;
+  bottom: 0;
+}
+@page {
+  margin: 1mm
+}
+</style>
+@section('content')
+
+    <table>
+      <thead>
+          <tr><td>
+                    <img class="visible-print" width="800" src="{{asset('/public/img/header.png')}}" alt="E-Lab">
+
+          </td></tr>
+      </thead>  
+  <tbody><tr><td>
+    <div class="content">
+                <div class="col-lg-12" id="content">
+ 
+ 
+    <h4 class="text-left" style="padding-top: 10px !important;">
+            <strong>
+            <span class="darkblue">Full Name:</span> {{$patient->patient->fname}}
+            </strong>
+            
+            <strong style="padding-left: 50px !important;">
+            <span class="darkblue">Gender:</span> {{$patient->patient->gender}}    
+            </strong>
+    
+            <strong style="padding-left: 50px !important;">    
+            @if($patient->patient->years == 0 || $patient->patient->years == "")
+            &nbsp;&nbsp;&nbsp;
+            @else
+            <span class="darkblue">Years:</span> {{$patient->patient->years}} 
+            @endif
+            
+            @if($patient->patient->months == 0 || $patient->patient->months == "")
+            &nbsp;&nbsp;&nbsp;
+            @else
+            <span class="darkblue">Month:</span> {{$patient->patient->months}}
+            @endif
+            </strong>
+    </h4>
+    
+        <h4 class="text-left" style="padding-top: 10px !important;">
+               <strong> <span class="darkblue"> Referral Doctor:</span> {{count($patient->refferal)>0?$patient->refferal->name:""}} <strong style="padding-left: 100px !important;"> <span class="darkblue">Date:</span> {{$patient->created_at->format('d/m/Y')}} </strong></strong>
+    </h4>
+<br>
+
+                <div class="form-group has-primary " >
+                
+<div class="for-watermark-div visible-print" >
+ <img src="{{asset('/public/img/medicell.png')}}" >
+ </div>
+                        <div class="col-lg-12" >
+                            @foreach ($maintests as $maintest)
+                                @continue(!in_array($maintest->id, $patient->maintests()))
+                                <div class="row">
+                                <div class="form-group has-primary col-lg-2 text-center" >
+                            <label class="control-label text-center">
+                                <strong class="h2 text-center" style="font-style: italic; color: #191970 !important;">{{$maintest->name}}</strong><label>
+                                </div> 
+                                             <table class="table table-responsive table-bordered h3">
+                                                  <thead>
+                                                     <tr>
+                                                     <th class="col-print-3">Test Name</th>
+                                                     <th class="col-print-1">Result</th>
+                                                     <th class="col-print-1 hidden">Level</th>
+                                                     <th class="col-print-4">Normal Range</th>
+                                                     </tr>
+                                                 </thead>
+
+                               @foreach ($patient->subtests->sortby('description') as $subtest)
+                                    @continue($subtest->maintest->id!=$maintest->id)
+                                             
+                                                 <tbody>
+
+                                                    @if($subtest->name=='Urine' || $subtest->name=='Stool' || $subtest->name=='SFA')
+                                                        <tr>
+                                                        </tr>
+                                                    @else
+                                                        <tr>
+                                                        </tr>
+                                                    <tr class="h3">
+                                                        <td > {{$subtest->name}}</td>
+                                                        <td> <strong  class="darkblue">{{$subtest->pivot->result}}</strong></td>
+                                                        
+                                                        @if($subtest->pivot->negative=='L' || $subtest->pivot->negative=='H')
+                                                          <td style="color: red !important" class="hidden">
+                                                              {{$subtest->pivot->negative}}</td>
+                                                              
+                                                        @elseif($subtest->pivot->negative=='-')
+                                                            <td class="hidden">-</td>
+                                                        @else
+                                                            
+                                                        @if($subtest->pivot->negative=='Normal')
+                                                            <td class="hidden">N</td>
+                                                        @endif
+                                                        
+                                                        @endif
+                                                 
+                                                        <td>{{$subtest->normal_range}}</td> 
+                                                        
+                                                     </tr>
+                                                     @endif
+                                                 </tbody>
+                                                 
+                                @endforeach
+                                             </table>
+
+                                </div>
+            <hr style="border: 2px solid black !important;">
+                                @endforeach
+
+                </div>
+            </div>
+        </div>
+        <br>
+        <br>
+
+            <h4 style="text-align: right !important; margin-right: 100px !important;"><strong>
+            Signature</strong></h4>
+        </div>
+  </td></tr></tbody>
+  <tfoot><tr><td>
+    <div class="footer-space">&nbsp;</div>
+  </td></tr></tfoot></tabl>
+  
+              <div class="footer">
+      <img  class="visible-print" width="1185" src="{{asset('/public/img/footerr.png')}}" alt=" E-Lab">
+    </div> 
+      
+   
+            @endsection
+@section('afterFooter')
+<script type="text/javascript">
+$(document).ready(function() {
+   window.print();
+
+});
+</script>
+@endsection
